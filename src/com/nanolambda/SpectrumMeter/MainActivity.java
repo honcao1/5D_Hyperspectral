@@ -190,27 +190,7 @@ public class MainActivity extends Activity
 		    	// check permission
 				if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 					// remind user to grant permission
-					new AlertDialog.Builder(MainActivity.this)
-							.setMessage("Bluetooth will not work if 'access location' permission is not granted.")
-							.setTitle(Html.fromHtml("<b>" + "Permission Settings" + "</b>"))
-							.setIcon(R.drawable.ic_launcher)
-							.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									// go to settings
-									Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
-									myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
-									myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-									startActivityForResult(myAppSettings, REQUEST_APP_SETTINGS);
-								}
-							})
-							.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-							{
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-								}
-							})
-							.show();
+                    dialogPermission(2);
 				}
 				
 				if (!mBtAdapter.isEnabled()) {
@@ -282,25 +262,7 @@ public class MainActivity extends Activity
 			// ActivityCompat.shouldShowRequestPermissionRationale will return true if the user rejects permissions at the first time
 			if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
 				// tell user why the permissions are required
-				new AlertDialog.Builder(MainActivity.this)
-						.setMessage("This app requires Bluetooth to function well. Please grant 'access location' permission for Bluetooth.")
-						.setTitle(Html.fromHtml("<b>" + "Permission Settings" + "</b>"))
-						.setIcon(R.drawable.ic_launcher)
-						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								// send request
-								ActivityCompat.requestPermissions(MainActivity.this,
-										new String[]{ Manifest.permission.ACCESS_COARSE_LOCATION }, 
-										REQUEST_PERMISSIONS);
-							}
-						})
-						.setNegativeButton("No", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-							}
-						})
-						.show();
+				dialogPermission(1);
 			}
 			else {
 				// send request
@@ -657,6 +619,54 @@ public class MainActivity extends Activity
 		dialog.show();
 	}
 
+	private void dialogPermission(int option){
+		Dialog dialog = new Dialog(this);
+		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		dialog.setContentView(R.layout.dialog_permission);
+		TextView tvDialog1 = dialog.findViewById(R.id.tvDialog1);
+		Button btnOk = dialog.findViewById(R.id.btnOkDialog1);
+		Button btnNo = dialog.findViewById(R.id.btnNoDialog1);
+
+		if (option ==1 ) {
+			tvDialog1.setText("Ứng dụng này yêu cầu Bluetooth để hoạt động tốt. Vui lòng cấp quyền 'vị trí truy cập' cho Bluetooth.");
+			btnOk.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					ActivityCompat.requestPermissions(MainActivity.this,
+							new String[]{ Manifest.permission.ACCESS_COARSE_LOCATION },
+							REQUEST_PERMISSIONS);
+
+					dialog.dismiss();
+				}
+			});
+			btnNo.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					dialog.dismiss();
+				}
+			});
+		} else {
+		    tvDialog1.setText("Bluetooth sẽ không hoạt động nếu không được phép 'vị trí truy cập'.");
+		    btnOk.setText("Setting");
+			btnOk.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+					myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+					myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					startActivityForResult(myAppSettings, REQUEST_APP_SETTINGS);
+				}
+			});
+			btnNo.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					dialog.dismiss();
+				}
+			});
+		}
+		dialog.show();
+	}
+
 	private void writeFileUri() {
 		StringBuilder data = new StringBuilder();
 		for (int i=0; i<unknowList.size();i++) {
@@ -763,7 +773,6 @@ public class MainActivity extends Activity
 					writeFileUri();
 				else {
 					Toast.makeText(this, "No data avaible!", Toast.LENGTH_SHORT).show();
-					dialogCustom(30);
 				}
 				break;
 		}

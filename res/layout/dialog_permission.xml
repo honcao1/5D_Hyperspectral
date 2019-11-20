@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:gravity="center_horizontal"
+    android:layout_width="350dp"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:background="@drawable/lodo_5d_1"
+        android:layout_width="230dp"
+        android:layout_height="200dp"/>
+    <TextView
+        android:id="@+id/tvDialog1"
+        android:textSize="20dp"
+        android:text="asdadddddd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <ImageView
+        android:background="@drawable/line"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btnNoDialog1"
+            android:text="No"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:background="@drawable/custom_button"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btnOkDialog1"
+            android:text="Ok"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:background="@drawable/custom_button"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</LinearLayout>
