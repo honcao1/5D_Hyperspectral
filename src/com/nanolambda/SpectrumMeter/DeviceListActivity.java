@@ -150,21 +150,42 @@ public class DeviceListActivity extends Activity {
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    mScanning = false;
-                    mLEScanner.stopScan(mScanCallBack);
-
-                    cancelButton.setText(R.string.scan);
-
+                    if(Build.VERSION.SDK_INT>21) {
+                        mScanning = false;
+                        mLEScanner.stopScan(mScanCallBack);
+                        cancelButton.setText(R.string.scan);
+                        System.out.println("stop Scan");
+                    } else {
+                        mScanning = false;
+                        mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                        cancelButton.setText("Scan");
+                        System.out.println("stop Scan");
+                    }
                 }
             }, SCAN_PERIOD);
-
-            mScanning = true;
-            mLEScanner.startScan(filters, settings, mScanCallBack);
-            cancelButton.setText(R.string.cancel);
+            if(Build.VERSION.SDK_INT>21) {
+                mScanning = true;
+                mLEScanner.startScan(filters, settings, mScanCallBack);
+                cancelButton.setText(R.string.cancel);
+                System.out.println("start Scan");
+            } else {
+                mScanning = true;
+                mBluetoothAdapter.startLeScan(mLeScanCallback);
+                cancelButton.setText(R.string.cancel);
+                System.out.println("start Scan");
+            }
         } else {
-            mScanning = false;
-            mLEScanner.stopScan(mScanCallBack);
-            cancelButton.setText(R.string.scan);
+            if (Build.VERSION.SDK_INT>21) {
+                mScanning = false;
+                mLEScanner.stopScan(mScanCallBack);
+                cancelButton.setText(R.string.scan);
+                System.out.println("stop Scan");
+            } else {
+                mScanning = true;
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                cancelButton.setText(R.string.cancel);
+                System.out.println("stop Scan");
+            }
         }
 
     }
@@ -201,7 +222,7 @@ public class DeviceListActivity extends Activity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    addDevice(device,rssi, scanRecord);
+                                    addDevice(device, rssi, scanRecord);
                                 }
                             });
 
@@ -286,7 +307,11 @@ public class DeviceListActivity extends Activity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             BluetoothDevice device = deviceList.get(position);
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            if (Build.VERSION.SDK_INT > 21) {
+                mLEScanner.stopScan(mScanCallBack);
+            } else {
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            }
 
             Bundle b = new Bundle();
             b.putString(BluetoothDevice.EXTRA_DEVICE, deviceList.get(position).getAddress());
