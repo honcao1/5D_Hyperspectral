@@ -154,7 +154,7 @@ public class DeviceListActivity extends Activity {
                         mScanning = false;
                         mLEScanner.stopScan(mScanCallBack);
                         cancelButton.setText(R.string.scan);
-                        System.out.println("stop Scan");
+                        System.out.println("stop Scan > 21");
                     } else {
                         mScanning = false;
                         mBluetoothAdapter.stopLeScan(mLeScanCallback);
@@ -167,7 +167,7 @@ public class DeviceListActivity extends Activity {
                 mScanning = true;
                 mLEScanner.startScan(filters, settings, mScanCallBack);
                 cancelButton.setText(R.string.cancel);
-                System.out.println("start Scan");
+                System.out.println("start Scan > 21");
             } else {
                 mScanning = true;
                 mBluetoothAdapter.startLeScan(mLeScanCallback);
@@ -179,7 +179,7 @@ public class DeviceListActivity extends Activity {
                 mScanning = false;
                 mLEScanner.stopScan(mScanCallBack);
                 cancelButton.setText(R.string.scan);
-                System.out.println("stop Scan");
+                System.out.println("stop Scan > 21");
             } else {
                 mScanning = true;
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);

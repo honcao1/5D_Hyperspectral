@@ -31,6 +31,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -38,6 +39,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
@@ -71,6 +73,7 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends Activity
 {
@@ -102,6 +105,7 @@ public class MainActivity extends Activity
 
 	private SpectrumTransferService mService = null;
 	private BluetoothAdapter mBtAdapter = null;
+
 	
 	// spectrum chart data
 	private List<Entry> mChartPoints;
@@ -110,6 +114,8 @@ public class MainActivity extends Activity
 	private LineData mChartData;
 
 	boolean idItemMenu = false;
+	double[][] unknow;
+	StringBuilder data = new StringBuilder();
 	ArrayList<ArrayList<Double>> unknowList = new ArrayList<ArrayList<Double>>();
     // UI update
 	Handler guiUpdateHandler = new Handler();
@@ -270,6 +276,27 @@ public class MainActivity extends Activity
 						new String[]{ Manifest.permission.ACCESS_COARSE_LOCATION }, 
 						REQUEST_PERMISSIONS);
 			}
+		}
+
+		final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+			new AlertDialog.Builder(this)
+					.setMessage("GPS của bạn đang tắt. Bạn có muốn bật lên hay không?")
+					.setCancelable(true)
+					.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+							startActivity(intent);
+						}
+					})
+					.setNegativeButton("No", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.cancel();
+						}
+					})
+					.show();
 		}
 	}
 
@@ -592,17 +619,23 @@ public class MainActivity extends Activity
         int row_unknow = unknowList.size();
 		int col_unknow = unknowList.get(0).size();
 
+		System.out.println("unknowList: "+row_unknow+"\t"+col_unknow);
+
 		if (row_unknow>0) idItemMenu = true;
 		System.out.println("idItemMenu: "+idItemMenu);
 
-		double[][] unknow = new double[row_unknow][col_unknow];
+		unknow = new double[row_unknow][col_unknow];
 		for(int i=0;i<row_unknow;i++){
 			for(int j=0;j<col_unknow;j++){
 				unknow[i][j] = unknowList.get(i).get(j);
+				if (j != col_unknow-1)
+					data.append(unknowList.get(i).get(j)+",");
+				else
+					data.append(unknowList.get(i).get(j));
 			}
+			data.append("\n");
 		}
 		Matrix.printMatrix(unknow);
-
 		unknowList.clear();
         int result = RMES.result(isName, unknow, row_unknow);
         System.out.println("Result:\t"+result);
@@ -668,21 +701,12 @@ public class MainActivity extends Activity
 	}
 
 	private void writeFileUri() {
-		StringBuilder data = new StringBuilder();
-		for (int i=0; i<unknowList.size();i++) {
-			for (int j=0; j<unknowList.get(0).size();j++) {
-				if (j != unknowList.get(0).size()-1)
-					data.append(unknowList.get(i).get(j)+",");
-				else
-					data.append(unknowList.get(i).get(j));
-			}
-			data.append("\n");
-		}
 		System.out.println(data);
 
-		LocalDateTime dtime = LocalDateTime.now();
-		String name = String.valueOf(dtime).substring(0, 19);
+		Random random = new Random();
 
+		int rand = random.nextInt(10000);
+		String name = "data"+rand;
 		System.out.println(name);
 
 		try {
@@ -701,6 +725,8 @@ public class MainActivity extends Activity
 			intent.putExtra(Intent.EXTRA_STREAM, path);
 			startActivity(Intent.createChooser(intent, "send mail"));
 		} catch (Exception e){}
+
+		data.delete(0, data.length());
 	}
 
 	@Override
@@ -769,9 +795,9 @@ public class MainActivity extends Activity
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()){
 			case R.id.saveCSV:
-				if (idItemMenu)
+				if (idItemMenu) {
 					writeFileUri();
-				else {
+				} else {
 					Toast.makeText(this, "No data avaible!", Toast.LENGTH_SHORT).show();
 				}
 				break;
